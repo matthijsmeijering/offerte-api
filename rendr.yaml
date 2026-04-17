@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: offerte-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:10000
+    envVars:
+      - key: TEMPLATE_URL
+        value: https://docs.google.com/presentation/d/1qn0bB6YjeELp20WX-wm3QiHi9k4XEn0K/export/pptx
