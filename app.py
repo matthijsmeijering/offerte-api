@@ -31,8 +31,14 @@ def generate():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Geen data meegestuurd"}), 400
-    try:
-        r = requests.get(TEMPLATE_URL, timeout=15)
+try:
+        session = requests.Session()
+        r = session.get(TEMPLATE_URL, timeout=15)
+        for key, value in r.cookies.items():
+            if key.startswith('download_warning'):
+                params = {'confirm': value, 'id': TEMPLATE_URL.split('id=')[-1]}
+                r = session.get('https://drive.google.com/uc', params=params, timeout=15)
+                break
         r.raise_for_status()
         template_bytes = io.BytesIO(r.content)
     except Exception as e:
