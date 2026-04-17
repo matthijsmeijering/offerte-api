@@ -1,12 +1,11 @@
 from flask import Flask, request, send_file, jsonify
 from pptx import Presentation
-import requests
 import os
 import io
 
 app = Flask(__name__)
 
-TEMPLATE_URL = os.environ.get("TEMPLATE_URL", "")
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "offerte_template_1.pptx")
 
 def replace_in_paragraph(para, replacements):
     full_text = "".join(run.text for run in para.runs)
@@ -32,17 +31,9 @@ def generate():
     if not data:
         return jsonify({"error": "Geen data meegestuurd"}), 400
     try:
-        session = requests.Session()
-        r = session.get(TEMPLATE_URL, timeout=15)
-        for key, value in r.cookies.items():
-            if key.startswith('download_warning'):
-                params = {'confirm': value, 'id': TEMPLATE_URL.split('id=')[-1]}
-                r = session.get('https://drive.google.com/uc', params=params, timeout=15)
-                break
-        r.raise_for_status()
-        template_bytes = io.BytesIO(r.content)
+        template_bytes = open(TEMPLATE_PATH, "rb")
     except Exception as e:
-        return jsonify({"error": f"Template ophalen mislukt: {str(e)}"}), 500
+        return jsonify({"error": f"Template laden mislukt: {str(e)}"}), 500
     prs = Presentation(template_bytes)
     for slide in prs.slides:
         for shape in slide.shapes:
@@ -67,5 +58,4 @@ def generate():
         download_name=filename
     )
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+if __name__ == "__main__"
