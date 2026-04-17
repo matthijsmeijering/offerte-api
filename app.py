@@ -31,7 +31,7 @@ def generate():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Geen data meegestuurd"}), 400
-try:
+    try:
         session = requests.Session()
         r = session.get(TEMPLATE_URL, timeout=15)
         for key, value in r.cookies.items():
